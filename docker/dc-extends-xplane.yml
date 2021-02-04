@@ -1,0 +1,35 @@
+version: '2.3'
+
+services:
+
+    devel:
+        image: atcp/monorepo:devel-xplane
+        runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+            - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+        build:
+            context: ${CONTEXT_ROOT:-..}
+            args:
+                - BASEIMAGE=atcp/monorepo:devel
+                - USER=uatcp
+            dockerfile: docker/xplane/Dockerfile
+        user: uatcp
+        volumes:
+            - $HOME/xplane11:/xplane
+            - $HOME/.x-plane-docker:/home/uatcp/.x-plane
+        command: bash
+
+    xplane:
+        image: atcp/xplane:dev
+        runtime: nvidia
+        build:
+            context: ..
+            dockerfile: docker/xplane/Dockerfile
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix
+            - $HOME/xplane11:/xplane
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+            - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+            - DISPLAY=$DISPLAY
